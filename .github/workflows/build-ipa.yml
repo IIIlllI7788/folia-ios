@@ -1,0 +1,43 @@
+name: Build Unsigned IPA
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Clone Folia source
+        run: git clone --depth 1 https://github.com/brysonhwang/folia-major.git src
+      - name: Use our Capacitor config
+        run: cp capacitor.config.json src/
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build web
+        working-directory: src
+        run: |
+          npm install -g pnpm
+          pnpm install --no-frozen-lockfile
+          pnpm add @paper-design/shaders
+          pnpm run build
+      - name: Add iOS platform
+        working-directory: src
+        run: |
+          pnpm add -D @capacitor/cli@6 @capacitor/core@6 @capacitor/ios@6
+          npx cap add ios
+          npx cap sync ios
+      - name: Pod install
+        working-directory: src
+        run: pod install --project-directory=ios/App
+      - name: Archive (unsigned)
+        working-directory: src
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -destination "generic/platform=iOS" archive -archivePath build/App.xcarchive CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY=""
+          mkdir -p build/Payload
+          cp -R build/App.xcarchive/Products/Applications/App.app build/Payload/
+          cd build && zip -qry Folia-unsigned.ipa Payload
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: folia-unsigned-ipa
+          path: src/build/Folia-unsigned.ipa
