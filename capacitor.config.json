@@ -1,0 +1,12 @@
+{
+  "appId": "com.folia.music",
+  "appName": "Folia",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "always",
+    "limitsNavigationsToAppBoundDomains": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
