@@ -1,0 +1,8 @@
+name: Runner Probe
+on:
+  workflow_dispatch:
+jobs:
+  probe-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "ubuntu runner OK"; uname -a
