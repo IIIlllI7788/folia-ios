@@ -3,7 +3,8 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-13
+    timeout-minutes: 60
     steps:
       - name: Clone Folia source
         run: git clone --depth 1 https://github.com/brysonhwang/folia-major.git src
